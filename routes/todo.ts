@@ -1,4 +1,5 @@
-import express from "express"
+import express from "express";
+
 import { changeStatusOne, createOne, deleteOne, getAll, updateOne } from "../handlers/todo";
 
 const todoRouter = express.Router();

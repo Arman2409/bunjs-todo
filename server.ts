@@ -1,12 +1,13 @@
-import express, { json } from "express";
+import express from "express";
 import dotenv from "dotenv";
+
 import todoRouter from "./routes/todo";
 
 dotenv.config();
 
 const app = express();
 
-app.use(json())
+app.use(express.json())
 
 app.get("/", (_ , res) => {
     res.send("Server running!")

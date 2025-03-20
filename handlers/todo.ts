@@ -1,5 +1,7 @@
 import { PrismaClient, type Todo } from "@prisma/client";
 import type { Request, Response } from "express";
+
+import { ErrorMessage, StatusCode } from "../constants/status";
 import type { UpdateTodoData } from "../types/handlers";
 
 const prisma = new PrismaClient();
@@ -10,9 +12,11 @@ export const getAll = async (
     try {
         const todos = await prisma.todo.findMany();
 
-        res.status(200).send(todos);
+        res.status(StatusCode.OK).send(todos);
     } catch (err) {
-        console.warn(`Failed to get todos: ${err}`);
+        console.warn(`${ErrorMessage.FAILED_TO_GET_ALL}: ${err}`);
+
+        res.status(StatusCode.INTERNAL_SERVER_ERROR).send(ErrorMessage.FAILED_TO_GET_ALL);
     }
 }
 
@@ -29,9 +33,11 @@ export const createOne = async (
             }
         })
 
-        res.status(201).send(newTodo);
+        res.status(StatusCode.CREATED).send(newTodo);
     } catch (err) {
-        console.warn(`Failed to create todo: ${err}`);
+        console.warn(`${ErrorMessage.FAILED_TO_CREATE}: ${err}`);
+
+        res.status(StatusCode.INTERNAL_SERVER_ERROR).send(ErrorMessage.FAILED_TO_CREATE);
     }
 }
 
@@ -51,9 +57,11 @@ export const changeStatusOne = async (
             }
         })
 
-        res.status(204).end();
+        res.status(StatusCode.NO_CONTENT).end();
     } catch (err) {
-        console.warn(`Failed to delete todo: ${err}`);
+        console.warn(`${ErrorMessage.FAILED_TO_CHANGE_STATUS}: ${err}`);
+
+        res.status(StatusCode.INTERNAL_SERVER_ERROR).send(ErrorMessage.FAILED_TO_CHANGE_STATUS)
     }
 }
 
@@ -65,7 +73,7 @@ export const updateOne = async (
         const { title, description, completed } = { ...req.body as Todo }
 
         if (!title && !description) {
-            res.status(400).send("Neither 'title' nor 'description' provided");
+            res.status(StatusCode.BAD_REQUEST).send("Neither 'title' nor 'description' provided");
         }
 
         const updateData: UpdateTodoData = {} as UpdateTodoData;
@@ -78,7 +86,7 @@ export const updateOne = async (
         }
         if(completed) {
             if(typeof completed !== "boolean") {
-                res.status(400).send("The type of 'completed' should be boolean");
+                res.status(StatusCode.BAD_REQUEST).send("The type of 'completed' should be boolean");
                 return;
             }
 
@@ -92,9 +100,11 @@ export const updateOne = async (
             data: updateData
         })
 
-        res.status(200).send(updatedTodo);
+        res.status(StatusCode.OK).send(updatedTodo);
     } catch (err) {
-        console.warn(`Failed to update todo: ${err}`);
+        console.warn(`${ErrorMessage.FAILED_TO_UPDATE}: ${err}`);
+
+        res.status(StatusCode.INTERNAL_SERVER_ERROR).send(ErrorMessage.FAILED_TO_UPDATE)
     }
 }
 
@@ -104,17 +114,16 @@ export const deleteOne = async (
     try {
         const { id } = { ...req.params }
 
-        console.log({ id });
-
-
         await prisma.todo.delete({
             where: {
                 id
             }
         })
 
-        res.status(204).end();
+        res.status(StatusCode.NO_CONTENT).end();
     } catch (err) {
-        console.warn(`Failed to delete todo: ${err}`);
+        console.warn(`${ErrorMessage.FAILED_TO_DELETE}: ${err}`);
+
+        res.status(StatusCode.INTERNAL_SERVER_ERROR).send(ErrorMessage.FAILED_TO_DELETE);
     }
 }
