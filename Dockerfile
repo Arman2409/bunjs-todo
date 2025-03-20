@@ -1,14 +1,5 @@
 # Start with the lightweight Alpine image
-FROM alpine:latest
-
-# Install necessary dependencies including curl, bash, and GCC libraries
-RUN apk add --no-cache curl bash g++ libstdc++ libgcc
-
-# Install Bun (since Bun provides an installer)
-RUN curl -fsSL https://bun.sh/install | bash
-
-# Add Bun to the path
-ENV PATH="/root/.bun/bin:$PATH"
+FROM oven/bun:latest
 
 # Set the working directory
 WORKDIR /app
